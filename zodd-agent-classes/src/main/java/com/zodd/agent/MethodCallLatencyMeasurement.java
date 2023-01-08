@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class LatencyMeasureResult {
+public class MethodCallLatencyMeasurement {
 
     private final int methodId;
     private final long millisEpochTime;

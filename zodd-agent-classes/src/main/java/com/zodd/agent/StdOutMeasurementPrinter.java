@@ -6,18 +6,18 @@ import java.util.concurrent.Executors;
 
 import org.jctools.queues.MpscLinkedQueue;
 
-public class ResultPrinter implements MeasurementStorage {
+public class StdOutMeasurementPrinter implements MeasurementStorage {
 
-    private final Queue<LatencyMeasureResult> queue = new MpscLinkedQueue<>();
+    private final Queue<MethodCallLatencyMeasurement> queue = new MpscLinkedQueue<>();
     private final MethodRepository methodRepository;
 
-    public ResultPrinter(Settings settings, MethodRepository methodRepository) {
+    public StdOutMeasurementPrinter(Settings settings, MethodRepository methodRepository) {
         this.methodRepository = methodRepository;
 
         Executors.newFixedThreadPool(1).submit(
             () -> {
                 while (!Thread.currentThread().isInterrupted()) {
-                    LatencyMeasureResult result = queue.poll();
+                    MethodCallLatencyMeasurement result = queue.poll();
                     if (result == null) {
                         try {
                             Thread.sleep(100L);
@@ -34,7 +34,7 @@ public class ResultPrinter implements MeasurementStorage {
         );
     }
 
-    public void store(LatencyMeasureResult result) {
-        queue.add(result);
+    public void store(MethodCallLatencyMeasurement measurement) {
+        queue.add(measurement);
     }
 }

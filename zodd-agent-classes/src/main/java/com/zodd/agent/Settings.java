@@ -2,16 +2,20 @@ package com.zodd.agent;
 
 import org.jetbrains.annotations.NotNull;
 
+import com.zodd.agent.util.CommaSeparatedList;
+import com.zodd.agent.util.MethodMatcherList;
+import com.zodd.agent.util.PackageList;
+
 /**
  * Agent settings which define what packages to instrument, at which method recording should start, etc.
  * It's only possible to set settings via JMV system properties at the time.
  */
 public class Settings {
 
-    public static final String PACKAGES_PROPERTY = "ulyp.packages";
-    public static final String EXCLUDE_PACKAGES_PROPERTY = "ulyp.exclude-packages";
-    public static final String START_RECORDING_METHODS_PROPERTY = "ulyp.methods";
-    public static final String FILE_PATH_PROPERTY = "ulyp.file";
+    public static final String PACKAGES_PROPERTY = "zodd.packages";
+    public static final String EXCLUDE_PACKAGES_PROPERTY = "zodd.exclude-packages";
+    public static final String START_RECORDING_METHODS_PROPERTY = "zodd.methods";
+    public static final String FILE_PATH_PROPERTY = "zodd.file";
 
     private final String file;
     @NotNull

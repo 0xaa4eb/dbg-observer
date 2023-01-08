@@ -4,6 +4,9 @@ import java.lang.instrument.Instrumentation;
 
 import com.zodd.agent.util.ByteBuddyMethodResolver;
 import com.zodd.agent.util.ErrorLoggingInstrumentationListener;
+import com.zodd.agent.util.LoggingSettings;
+import com.zodd.agent.util.MethodMatcherList;
+import com.zodd.agent.util.PackageList;
 
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
@@ -16,14 +19,6 @@ import net.bytebuddy.matcher.ElementMatchers;
  */
 public class Agent {
 
-    private static final String ULYP_LOGO =
-            "   __  __    __ __  __    ____ \n" +
-                    "  / / / /   / / \\ \\/ /   / __ \\\n" +
-                    " / / / /   / /   \\  /   / /_/ /\n" +
-                    "/ /_/ /   / /___ / /   / ____/ \n" +
-                    "\\____/   /_____//_/   /_/      \n" +
-                    "                               ";
-
     public static void start(String args, Instrumentation instrumentation) {
 
         // Touch first and initialize shadowed slf4j
@@ -32,17 +27,14 @@ public class Agent {
         if (AgentContext.isLoaded()) {
             return;
         }
-        AgentContext.setLoaded();
-
-        AgentContext instance = AgentContext.getInstance();
         Settings settings = Settings.fromSystemProperties();
+        AgentContext.initInstance(settings);
 
         PackageList instrumentedPackages = settings.getInstrumentedPackages();
         PackageList excludedPackages = settings.getExcludedFromInstrumentationPackages();
         MethodMatcherList methods = settings.getRecordMethodList();
 
-        System.out.println(ULYP_LOGO);
-        System.out.println("ULYP agent started, logging level = " + logLevel + ", settings: " + settings);
+        System.out.println("Zodd agent started, logging level = " + logLevel + ", settings: " + settings);
 
         ElementMatcher.Junction<TypeDescription> instrumentationMatcher = null;
 
@@ -83,7 +75,7 @@ public class Agent {
                 .transform((builder, typeDescription, classLoader, module) -> builder.visit(
                         Advice.withCustomMapping()
                                 .bind(methodIdFactory)
-                                .to(MethodCallRecordingAdvice.class)
+                                .to(LatencyMeasuringAdvice.class)
                                 .on(ElementMatchers
                                     .isMethod()
                                     .and(ElementMatchers.not(ElementMatchers.isAbstract()))

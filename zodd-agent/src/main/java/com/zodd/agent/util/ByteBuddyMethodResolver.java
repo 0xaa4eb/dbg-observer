@@ -2,7 +2,6 @@ package com.zodd.agent.util;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.zodd.agent.LoggingSettings;
 import com.zodd.agent.Method;
 import com.zodd.agent.Type;
 

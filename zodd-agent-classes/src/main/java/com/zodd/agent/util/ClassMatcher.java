@@ -1,4 +1,6 @@
-package com.zodd.agent;
+package com.zodd.agent.util;
+
+import com.zodd.agent.Type;
 
 public class ClassMatcher {
 

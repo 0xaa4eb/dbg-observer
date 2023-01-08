@@ -1,17 +1,10 @@
 package com.zodd.agent.util;
 
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import org.jetbrains.annotations.NotNull;
-
-import com.zodd.agent.ClassUtils;
-import com.zodd.agent.LoggingSettings;
 import com.zodd.agent.Type;
 
 import lombok.extern.slf4j.Slf4j;
@@ -25,56 +18,6 @@ import net.bytebuddy.description.type.TypeDescription;
 public class ByteBuddyTypeResolver {
 
     private static final AtomicLong typeIdGenerator = new AtomicLong(0L);
-
-    private final Map<Class<?>, Type> types = new ConcurrentHashMap<>();
-
-    public static ByteBuddyTypeResolver getInstance() {
-        return InstanceHolder.context;
-    }
-
-    @NotNull
-    public Type get(Object object) {
-        Type resolvedType;
-
-        if (object != null) {
-            resolvedType = types.computeIfAbsent(
-                    object.getClass(),
-                    this::resolve
-            );
-        } else {
-            resolvedType = Type.unknown();
-        }
-
-        if (LoggingSettings.TRACE_ENABLED) {
-            log.trace("Resolved object of java class {} to type {}", (object != null ? object.getClass() : null), resolvedType);
-        }
-
-        return resolvedType;
-    }
-
-    @NotNull
-    public Type get(Class<?> clazz) {
-        Type resolvedType;
-
-        if (clazz != null) {
-            resolvedType = types.computeIfAbsent(
-                    clazz,
-                    this::resolve
-            );
-        } else {
-            resolvedType = Type.unknown();
-        }
-
-        if (LoggingSettings.TRACE_ENABLED) {
-            log.trace("Resolved object of java class {} to type {}", clazz, resolvedType);
-        }
-
-        return resolvedType;
-    }
-
-    private Type resolve(Class<?> clazz) {
-        return resolve(TypeDescription.ForLoadedType.of(clazz).asGenericType());
-    }
 
     public Type resolve(TypeDescription.Generic type) {
         try {
@@ -148,14 +91,5 @@ public class ByteBuddyTypeResolver {
             genericName = genericName.replace('$', '.');
         }
         return genericName;
-    }
-
-    @NotNull
-    public Collection<Type> getAllResolved() {
-        return types.values();
-    }
-
-    private static class InstanceHolder {
-        private static final ByteBuddyTypeResolver context = new ByteBuddyTypeResolver();
     }
 }

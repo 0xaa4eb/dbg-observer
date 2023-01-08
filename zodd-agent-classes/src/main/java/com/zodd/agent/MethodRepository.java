@@ -1,8 +1,11 @@
 package com.zodd.agent;
 
+import com.zodd.agent.util.ConcurrentArrayList;
+
 public class MethodRepository {
 
     private static final MethodRepository INSTANCE = new MethodRepository();
+
     private final ConcurrentArrayList<Method> methods = new ConcurrentArrayList<>(64_000);
 
     private MethodRepository() {

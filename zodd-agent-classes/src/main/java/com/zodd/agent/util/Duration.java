@@ -1,50 +1,36 @@
-package com.ulyp.core.util;
-
-import com.google.common.base.Preconditions;
+package com.zodd.agent.util;
 
 import java.text.DecimalFormat;
 
 /**
  * Prints byte size to human-readable format
  */
-public class ByteSize {
+public class Duration {
 
-    private static final long BYTE = 1L;
-    private static final long KB = BYTE << 10;
-    private static final long MB = KB << 10;
-    private static final long GB = MB << 10;
-    private static final long TB = GB << 10;
-    private static final long PB = TB << 10;
-    private static final long EB = PB << 10;
-    private static final DecimalFormat DEC_FORMAT = new DecimalFormat("#.##");
+    private static final long MICROSECOND_THRESHOLD = 1000;
+    private static final long MILLISECOND_THRESHOLD = MICROSECOND_THRESHOLD * 1000;
+    private static final long SECONDS_THRESHOLD = MILLISECOND_THRESHOLD * 1000;
+    private static final DecimalFormat DEC_FORMAT = new DecimalFormat("#.###");
 
-    private final long byteSize;
+    private final long nanos;
 
-    public ByteSize(long byteSize) {
-        Preconditions.checkState(byteSize >= 0, "Byte size can't be negatie");
-        this.byteSize = byteSize;
+    public Duration(long nanos) {
+        this.nanos = nanos;
     }
 
-    public static String toHumanReadable(long size) {
-        if (size >= EB) return formatSize(size, EB, "EB");
-        if (size >= PB) return formatSize(size, PB, "PB");
-        if (size >= TB) return formatSize(size, TB, "TB");
-        if (size >= GB) return formatSize(size, GB, "GB");
-        if (size >= MB) return formatSize(size, MB, "MB");
-        if (size >= KB) return formatSize(size, KB, "KB");
-        return formatSize(size, BYTE, "Bytes");
+    public static String of(long size) {
+        if (size >= SECONDS_THRESHOLD) return formatSize(size, SECONDS_THRESHOLD, "s");
+        if (size >= MILLISECOND_THRESHOLD) return formatSize(size, MILLISECOND_THRESHOLD, "ms");
+        if (size >= MICROSECOND_THRESHOLD) return formatSize(size, MICROSECOND_THRESHOLD, "us");
+        return formatSize(size, 1, "ns");
     }
 
     private static String formatSize(long size, long divider, String unitName) {
         return DEC_FORMAT.format((double) size / divider) + " " + unitName;
     }
 
-    public ByteSize addBytes(long byteSize) {
-        return new ByteSize(this.byteSize + byteSize);
-    }
-
     @Override
     public String toString() {
-        return toHumanReadable(byteSize);
+        return of(nanos);
     }
 }
