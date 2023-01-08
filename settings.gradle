@@ -1,0 +1,5 @@
+rootProject.name = 'zodd'
+
+include 'zodd-agent'
+include 'zodd-agent-classes'
+
