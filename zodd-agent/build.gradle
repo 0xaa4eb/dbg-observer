@@ -17,7 +17,7 @@ repositories {
 dependencies {
     compileOnly project(':zodd-agent-classes')
     runtimeOnly files('../zodd-agent-classes/build/libs/zodd-agent-classes.jarr')
-    compile group: 'net.bytebuddy', name: 'byte-buddy', version: bytebuddy_version
+    compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.12.20'
 
     compileOnly group: 'org.projectlombok', name: 'lombok', version: lombok_version
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombok_version

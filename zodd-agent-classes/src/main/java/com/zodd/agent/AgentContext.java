@@ -5,10 +5,12 @@ public class AgentContext {
     private static AgentContext instance;
     private static volatile boolean agentLoaded = false;
 
-    private final MeasurementStorage resultPrinter;
+    private final ProfileDataStorage resultPrinter;
+    private final MethodRepository methodRepository;
 
     private AgentContext(Settings settings) {
-        resultPrinter = new StdOutMeasurementPrinter(settings, MethodRepository.getInstance());
+        this.methodRepository = new MethodRepository();
+        this.resultPrinter = new StdOutProfileDataPrinter(settings, methodRepository);
     }
 
     public static AgentContext getInstance() {
@@ -28,7 +30,11 @@ public class AgentContext {
         agentLoaded = true;
     }
 
-    public MeasurementStorage getResultPrinter() {
+    public ProfileDataStorage getResultPrinter() {
         return resultPrinter;
+    }
+
+    public MethodRepository getMethodRepository() {
+        return methodRepository;
     }
 }

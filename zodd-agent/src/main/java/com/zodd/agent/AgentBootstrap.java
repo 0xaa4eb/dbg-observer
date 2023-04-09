@@ -14,7 +14,7 @@ import com.zodd.agent.util.Version;
  * temporary jar file.
  * <p>
  * It then appends zodd-agent-classes.jar to bootstrap loader search. This is necessary because some classes are
- * defined by custom class loaders which should be later recorded by the agent.
+ * defined by custom class loaders which should be later profiled by the agent.
  */
 public class AgentBootstrap {
 

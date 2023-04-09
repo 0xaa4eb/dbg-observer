@@ -2,6 +2,8 @@ package com.zodd.agent;
 
 import com.zodd.agent.util.ByteBuddyMethodResolver;
 
+import com.zodd.agent.util.ByteBuddyTypeConverter;
+import com.zodd.agent.util.MethodMatcherList;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.description.annotation.AnnotationDescription;
 import net.bytebuddy.description.method.MethodDescription;
@@ -11,18 +13,19 @@ import net.bytebuddy.implementation.bytecode.assign.Assigner;
 
 
 /**
- * Allows wiring method id into advice classes {@link ConstructorCallRecordingAdvice} and {@link LatencyMeasuringAdvice}
+ * Allows wiring method id into advice classes {@link WallTimeProfileAdvice} and {@link WallTimeProfileAdvice}
  * <p>
  * Uses a singleton instance of {@link MethodRepository} to store methods into it.
  */
 public class MethodIdFactory implements Advice.OffsetMapping.Factory<MethodId> {
 
-    static final MethodRepository methodRepository = MethodRepository.getInstance();
-
     private final ForMethodIdOffsetMapping instance;
 
-    public MethodIdFactory(ByteBuddyMethodResolver methodResolver) {
-        this.instance = new ForMethodIdOffsetMapping(methodResolver);
+    public MethodIdFactory(MethodRepository methodRepository, MethodMatcherList profileMethods) {
+        ByteBuddyMethodResolver byteBuddyMethodResolver = new ByteBuddyMethodResolver(
+                profileMethods.useSuperTypes() ? ByteBuddyTypeConverter.SUPER_TYPE_DERIVING_INSTANCE : ByteBuddyTypeConverter.INSTANCE
+        );
+        this.instance = new ForMethodIdOffsetMapping(byteBuddyMethodResolver, methodRepository);
     }
 
     @Override
@@ -50,9 +53,11 @@ public class MethodIdFactory implements Advice.OffsetMapping.Factory<MethodId> {
 
         private final ThreadLocal<IdMapping> lastMethod = new ThreadLocal<>();
         private final ByteBuddyMethodResolver methodResolver;
+        private final MethodRepository methodRepository;
 
-        public ForMethodIdOffsetMapping(ByteBuddyMethodResolver methodResolver) {
+        public ForMethodIdOffsetMapping(ByteBuddyMethodResolver methodResolver, MethodRepository methodRepository) {
             this.methodResolver = methodResolver;
+            this.methodRepository = methodRepository;
         }
 
         public Target resolve(TypeDescription instrumentedType,

@@ -1,15 +1,13 @@
 package com.zodd.agent;
 
 import java.lang.instrument.Instrumentation;
+import java.util.Optional;
 
-import com.zodd.agent.util.ByteBuddyMethodResolver;
-import com.zodd.agent.util.ErrorLoggingInstrumentationListener;
-import com.zodd.agent.util.LoggingSettings;
-import com.zodd.agent.util.MethodMatcherList;
-import com.zodd.agent.util.PackageList;
+import com.zodd.agent.util.*;
 
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
+import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
@@ -29,59 +27,24 @@ public class Agent {
         }
         Settings settings = Settings.fromSystemProperties();
         AgentContext.initInstance(settings);
-
-        PackageList instrumentedPackages = settings.getInstrumentedPackages();
-        PackageList excludedPackages = settings.getExcludedFromInstrumentationPackages();
-        MethodMatcherList methods = settings.getRecordMethodList();
+        AgentContext context = AgentContext.getInstance();
 
         System.out.println("Zodd agent started, logging level = " + logLevel + ", settings: " + settings);
 
-        ElementMatcher.Junction<TypeDescription> instrumentationMatcher = null;
+        MethodMatcherList profileMethodList = settings.getProfileMethodList();
+        MethodIdFactory methodIdFactory = new MethodIdFactory(context.getMethodRepository(), profileMethodList);
 
-        for (String packageToInstrument : instrumentedPackages) {
-            if (instrumentationMatcher == null) {
-                instrumentationMatcher = ElementMatchers.nameStartsWith(packageToInstrument);
-            } else {
-                instrumentationMatcher = instrumentationMatcher.or(ElementMatchers.nameStartsWith(packageToInstrument));
-            }
-        }
-
-        excludedPackages.add("java");
-        excludedPackages.add("javax");
-        excludedPackages.add("jdk");
-        excludedPackages.add("sun");
-
-        for (String excludedPackage : excludedPackages) {
-            if (instrumentationMatcher == null) {
-                instrumentationMatcher = ElementMatchers.not(ElementMatchers.nameStartsWith(excludedPackage));
-            } else {
-                instrumentationMatcher = instrumentationMatcher.and(ElementMatchers.not(ElementMatchers.nameStartsWith(excludedPackage)));
-            }
-        }
-
-        ElementMatcher.Junction<TypeDescription> finalTypeMatcher = ElementMatchers
-                .not(ElementMatchers.nameStartsWith("com.zodd"))
-                .and(ElementMatchers.not(ElementMatchers.nameStartsWith("shadowed")));
-
-        if (instrumentationMatcher != null) {
-            finalTypeMatcher = finalTypeMatcher.and(instrumentationMatcher);
-        }
-
-        ByteBuddyMethodResolver resolver = new ByteBuddyMethodResolver();
-        MethodIdFactory methodIdFactory = new MethodIdFactory(resolver);
+        ElementMatcher.Junction<TypeDescription> ignoreMatcher = buildIgnoreMatcher(settings);
+        ElementMatcher.Junction<TypeDescription> instrumentationMatcher = buildInstrumentationMatcher(settings);
 
         AgentBuilder.Identified.Extendable agentBuilder = new AgentBuilder.Default()
-                .type(finalTypeMatcher)
-                .transform((builder, typeDescription, classLoader, module) -> builder.visit(
+                .ignore(ignoreMatcher)
+                .type(instrumentationMatcher)
+                .transform((builder, typeDescription, classLoader, module, protectionDomain) -> builder.visit(
                         Advice.withCustomMapping()
                                 .bind(methodIdFactory)
-                                .to(LatencyMeasuringAdvice.class)
-                                .on(ElementMatchers
-                                    .isMethod()
-                                    .and(ElementMatchers.not(ElementMatchers.isAbstract()))
-                                    .and(ElementMatchers.not(ElementMatchers.isConstructor()))
-                                    .and(methodDescription -> methods.anyMatch(resolver.resolve(methodDescription)))
-                                )
+                                .to(WallTimeProfileAdvice.class)
+                                .on(buildMethodsMatcher(settings))
                 ));
 
         AgentBuilder agent = agentBuilder.with(AgentBuilder.TypeStrategy.Default.REDEFINE);
@@ -93,5 +56,54 @@ public class Agent {
         }
 
         agent.installOn(instrumentation);
+    }
+
+    private static ElementMatcher.Junction<MethodDescription> buildMethodsMatcher(Settings settings) {
+        MethodMatcherList profileMethods = settings.getProfileMethodList();
+        ByteBuddyMethodResolver byteBuddyMethodResolver = new ByteBuddyMethodResolver(
+                profileMethods.useSuperTypes() ? ByteBuddyTypeConverter.SUPER_TYPE_DERIVING_INSTANCE : ByteBuddyTypeConverter.INSTANCE
+        );
+        return ElementMatchers.isMethod()
+                .and(ElementMatchers.not(ElementMatchers.isAbstract()))
+                .and(ElementMatchers.not(ElementMatchers.isConstructor()))
+                .and(methodDescription -> profileMethods.anyMatch(byteBuddyMethodResolver.resolve(methodDescription)));
+    }
+
+    private static ElementMatcher.Junction<TypeDescription> buildInstrumentationMatcher(Settings settings) {
+        PackageList instrumentatedPackages = settings.getInstrumentedPackages();
+        ElementMatcher.Junction<TypeDescription> instrumentationMatcher = null;
+
+        for (String packageToInstrument : instrumentatedPackages) {
+            if (instrumentationMatcher == null) {
+                instrumentationMatcher = ElementMatchers.nameStartsWith(packageToInstrument);
+            } else {
+                instrumentationMatcher = instrumentationMatcher.or(ElementMatchers.nameStartsWith(packageToInstrument));
+            }
+        }
+
+        return Optional.ofNullable(instrumentationMatcher).orElse(ElementMatchers.any());
+    }
+
+    private static ElementMatcher.Junction<TypeDescription> buildIgnoreMatcher(Settings settings) {
+        PackageList excludedPackages = settings.getExcludedFromInstrumentationPackages();
+
+        ElementMatcher.Junction<TypeDescription> ignoreMatcher = ElementMatchers.nameStartsWith("java.")
+                .or(ElementMatchers.nameStartsWith("javax."))
+                .or(ElementMatchers.nameStartsWith("jdk."))
+                .or(ElementMatchers.nameStartsWith("sun"))
+                .or(ElementMatchers.nameStartsWith("shadowed"))
+                .or(ElementMatchers.nameStartsWith("com.sun"))
+                .or(ElementMatchers.nameStartsWith("com.zodd"));
+
+        ElementMatcher.Junction<TypeDescription> instrumentationMatcher = buildInstrumentationMatcher(settings);
+        if (instrumentationMatcher != ElementMatchers.<TypeDescription>any()) {
+            ignoreMatcher = ElementMatchers.not(instrumentationMatcher).and(ignoreMatcher);
+        }
+
+        for (String excludedPackage : excludedPackages) {
+            ignoreMatcher = ignoreMatcher.or(ElementMatchers.nameStartsWith(excludedPackage));
+        }
+
+        return ignoreMatcher;
     }
 }

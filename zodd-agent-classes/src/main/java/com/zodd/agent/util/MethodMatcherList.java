@@ -31,6 +31,10 @@ public class MethodMatcherList {
         return methods.stream().anyMatch(matcher -> matcher.matches(description));
     }
 
+    public boolean useSuperTypes() {
+        return methods.stream().anyMatch(MethodMatcher::matchesSuperTypes);
+    }
+
     @Override
     public String toString() {
         return methods.toString();

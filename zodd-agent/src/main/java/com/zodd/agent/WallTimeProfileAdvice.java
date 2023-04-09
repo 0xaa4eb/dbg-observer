@@ -2,7 +2,7 @@ package com.zodd.agent;
 
 import net.bytebuddy.asm.Advice;
 
-public class LatencyMeasuringAdvice {
+public class WallTimeProfileAdvice {
 
     @Advice.OnMethodEnter
     static void enter(
@@ -20,7 +20,7 @@ public class LatencyMeasuringAdvice {
         long durationNanos = System.nanoTime() - timestamp;
 
         AgentContext.getInstance().getResultPrinter()
-            .store(MethodCallLatencyMeasurement.builder()
+            .store(MethodCallWallTimeData.builder()
                 .nanos(durationNanos)
                 .millisEpochTime(epochTimestamp)
                 .methodId(methodId)

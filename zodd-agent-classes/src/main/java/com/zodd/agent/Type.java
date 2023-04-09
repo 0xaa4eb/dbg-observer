@@ -9,7 +9,7 @@ import lombok.ToString;
 
 /**
  * Domain class for all java types. All type-related logic uses this class. It is also
- * written to the output recording file and later is read in UI
+ * written to the output file and later is read in UI
  */
 @Builder
 @AllArgsConstructor

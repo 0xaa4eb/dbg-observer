@@ -7,14 +7,14 @@ import com.zodd.agent.util.MethodMatcherList;
 import com.zodd.agent.util.PackageList;
 
 /**
- * Agent settings which define what packages to instrument, at which method recording should start, etc.
+ * Agent settings which define what packages to instrument, at which method profiling should start, etc.
  * It's only possible to set settings via JMV system properties at the time.
  */
 public class Settings {
 
     public static final String PACKAGES_PROPERTY = "zodd.packages";
     public static final String EXCLUDE_PACKAGES_PROPERTY = "zodd.exclude-packages";
-    public static final String START_RECORDING_METHODS_PROPERTY = "zodd.methods";
+    public static final String START_PROFILE_METHODS_PROPERTY = "zodd.methods";
     public static final String FILE_PATH_PROPERTY = "zodd.file";
 
     private final String file;
@@ -36,17 +36,17 @@ public class Settings {
 
     public static Settings fromSystemProperties() {
 
-        String methodsToRecord = System.getProperty(START_RECORDING_METHODS_PROPERTY, "");
-        MethodMatcherList recordingStartMethods = MethodMatcherList.parse(methodsToRecord);
+        String methodsToProfile = System.getProperty(START_PROFILE_METHODS_PROPERTY, "");
+        MethodMatcherList profilingStartMethods = MethodMatcherList.parse(methodsToProfile);
         String filePath = System.getProperty(FILE_PATH_PROPERTY);
         PackageList instrumentationPackages = new PackageList(CommaSeparatedList.parse(System.getProperty(PACKAGES_PROPERTY, "")));
         PackageList excludedPackages = new PackageList(CommaSeparatedList.parse(System.getProperty(EXCLUDE_PACKAGES_PROPERTY, "")));
 
-        return new Settings(filePath, recordingStartMethods, instrumentationPackages, excludedPackages);
+        return new Settings(filePath, profilingStartMethods, instrumentationPackages, excludedPackages);
     }
 
     @NotNull
-    public MethodMatcherList getRecordMethodList() {
+    public MethodMatcherList getProfileMethodList() {
         return methodMatcherList;
     }
 
