@@ -21,11 +21,14 @@ public class Agent {
 
         // Touch first and initialize shadowed slf4j
         String logLevel = LoggingSettings.getLoggingLevel();
+        Settings settings = Settings.fromSystemProperties();
+        if (settings.isAgentDisabled()) {
+            return;
+        }
 
         if (AgentContext.isLoaded()) {
             return;
         }
-        Settings settings = Settings.fromSystemProperties();
         AgentContext.initInstance(settings);
         AgentContext context = AgentContext.getInstance();
 

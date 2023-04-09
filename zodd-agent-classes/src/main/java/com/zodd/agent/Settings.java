@@ -16,22 +16,26 @@ public class Settings {
     public static final String EXCLUDE_PACKAGES_PROPERTY = "zodd.exclude-packages";
     public static final String START_PROFILE_METHODS_PROPERTY = "zodd.methods";
     public static final String FILE_PATH_PROPERTY = "zodd.file";
+    public static final String AGENT_DISABLED_PROPERTY = "zodd.off";
 
     private final String file;
     @NotNull
     private final MethodMatcherList methodMatcherList;
     private final PackageList instrumentedPackages;
     private final PackageList excludedFromInstrumentationPackages;
+    private final boolean agentDisabled;
 
     public Settings(
             String file,
             @NotNull MethodMatcherList methodMatcherList,
             PackageList instrumentedPackages,
-            PackageList excludedFromInstrumentationPackages) {
+            PackageList excludedFromInstrumentationPackages,
+            boolean agentDisabled) {
         this.methodMatcherList = methodMatcherList;
         this.file = file;
         this.instrumentedPackages = instrumentedPackages;
         this.excludedFromInstrumentationPackages = excludedFromInstrumentationPackages;
+        this.agentDisabled = agentDisabled;
     }
 
     public static Settings fromSystemProperties() {
@@ -41,8 +45,9 @@ public class Settings {
         String filePath = System.getProperty(FILE_PATH_PROPERTY);
         PackageList instrumentationPackages = new PackageList(CommaSeparatedList.parse(System.getProperty(PACKAGES_PROPERTY, "")));
         PackageList excludedPackages = new PackageList(CommaSeparatedList.parse(System.getProperty(EXCLUDE_PACKAGES_PROPERTY, "")));
+        boolean agentDisabled = System.getProperty(AGENT_DISABLED_PROPERTY) != null;
 
-        return new Settings(filePath, profilingStartMethods, instrumentationPackages, excludedPackages);
+        return new Settings(filePath, profilingStartMethods, instrumentationPackages, excludedPackages, agentDisabled);
     }
 
     @NotNull
@@ -60,5 +65,9 @@ public class Settings {
 
     public PackageList getExcludedFromInstrumentationPackages() {
         return excludedFromInstrumentationPackages;
+    }
+
+    public boolean isAgentDisabled() {
+        return agentDisabled;
     }
 }

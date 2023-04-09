@@ -1,6 +1,7 @@
 package com.zodd.agent.util;
 
 import java.text.DecimalFormat;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Prints byte size to human-readable format
@@ -18,11 +19,15 @@ public class Duration {
         this.nanos = nanos;
     }
 
-    public static String of(long size) {
-        if (size >= SECONDS_THRESHOLD) return formatSize(size, SECONDS_THRESHOLD, "s");
-        if (size >= MILLISECOND_THRESHOLD) return formatSize(size, MILLISECOND_THRESHOLD, "ms");
-        if (size >= MICROSECOND_THRESHOLD) return formatSize(size, MICROSECOND_THRESHOLD, "us");
-        return formatSize(size, 1, "ns");
+    public static Duration ofMicros(long micros) {
+        return new Duration(TimeUnit.MICROSECONDS.toNanos(micros));
+    }
+
+    public static String print(long nanos) {
+        if (nanos >= SECONDS_THRESHOLD) return formatSize(nanos, SECONDS_THRESHOLD, "s");
+        if (nanos >= MILLISECOND_THRESHOLD) return formatSize(nanos, MILLISECOND_THRESHOLD, "ms");
+        if (nanos >= MICROSECOND_THRESHOLD) return formatSize(nanos, MICROSECOND_THRESHOLD, "us");
+        return formatSize(nanos, 1, "ns");
     }
 
     private static String formatSize(long size, long divider, String unitName) {
@@ -31,6 +36,6 @@ public class Duration {
 
     @Override
     public String toString() {
-        return of(nanos);
+        return print(nanos);
     }
 }
