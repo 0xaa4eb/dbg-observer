@@ -15,40 +15,7 @@ public class ByteBuddyTypeConverter {
     public static final ByteBuddyTypeConverter INSTANCE = new ByteBuddyTypeConverter(false);
     public static final ByteBuddyTypeConverter SUPER_TYPE_DERIVING_INSTANCE = new ByteBuddyTypeConverter(true);
 
-    private static final TypeDescription.Generic BYTE_BUDDY_STRING_TYPE = TypeDescription.Generic.OfNonGenericType.ForLoadedType.of(String.class);
-
-    private static final TypeDescription.Generic PRIMITIVE_LONG = TypeDescription.Generic.OfNonGenericType.ForLoadedType.of(long.class);
-    private static final TypeDescription.Generic PRIMITIVE_INT = TypeDescription.Generic.OfNonGenericType.ForLoadedType.of(int.class);
-    private static final TypeDescription.Generic PRIMITIVE_SHORT = TypeDescription.Generic.OfNonGenericType.ForLoadedType.of(short.class);
-    private static final TypeDescription.Generic PRIMITIVE_BYTE = TypeDescription.Generic.OfNonGenericType.ForLoadedType.of(byte.class);
-    private static final Set<TypeDescription.Generic> PRIMITIVE_INTEGRAL_TYPES = new HashSet<>();
-    private static final Set<TypeDescription.Generic> BOXED_INTEGRAL_TYPES = new HashSet<>();
-    private static final Set<TypeDescription.Generic> PRIMITIVE_DOUBLE_TYPES = new HashSet<>();
-    private static final TypeDescription.Generic PRIMITIVE_CHAR_TYPE = TypeDescription.Generic.OfNonGenericType.ForLoadedType.of(char.class);
-    private static final TypeDescription.Generic BOXED_CHAR_TYPE = TypeDescription.Generic.OfNonGenericType.ForLoadedType.of(Character.class);
-    private static final TypeDescription CLASS_OBJECT_TYPE = TypeDescription.Generic.OfNonGenericType.ForLoadedType.of(Class.class).asErasure();
-    private static final TypeDescription COLLECTION_TYPE = TypeDescription.Generic.OfNonGenericType.ForLoadedType.of(Collection.class).asErasure();
-    private static final TypeDescription MAP_TYPE = TypeDescription.Generic.OfNonGenericType.ForLoadedType.of(Map.class).asErasure();
-    private static final TypeDescription THROWABLE_TYPE = TypeDescription.Generic.OfNonGenericType.ForLoadedType.of(Throwable.class).asErasure();
-    private static final TypeDescription NUMBER_TYPE = TypeDescription.Generic.OfNonGenericType.ForLoadedType.of(Number.class).asErasure();
-    private static final TypeDescription.Generic PRIMITIVE_BOOLEAN = TypeDescription.Generic.OfNonGenericType.ForLoadedType.of(boolean.class);
-    private static final TypeDescription.Generic BOXED_BOOLEAN = TypeDescription.Generic.OfNonGenericType.ForLoadedType.of(Boolean.class);
     private static final AtomicLong typeIdGenerator = new AtomicLong(0L);
-
-    static {
-        PRIMITIVE_INTEGRAL_TYPES.add(PRIMITIVE_LONG);
-        PRIMITIVE_INTEGRAL_TYPES.add(PRIMITIVE_INT);
-        PRIMITIVE_INTEGRAL_TYPES.add(PRIMITIVE_SHORT);
-        PRIMITIVE_INTEGRAL_TYPES.add(PRIMITIVE_BYTE);
-
-        PRIMITIVE_DOUBLE_TYPES.add(TypeDescription.Generic.OfNonGenericType.ForLoadedType.of(double.class));
-        PRIMITIVE_DOUBLE_TYPES.add(TypeDescription.Generic.OfNonGenericType.ForLoadedType.of(float.class));
-
-        BOXED_INTEGRAL_TYPES.add(TypeDescription.Generic.OfNonGenericType.ForLoadedType.of(Long.class));
-        BOXED_INTEGRAL_TYPES.add(TypeDescription.Generic.OfNonGenericType.ForLoadedType.of(Integer.class));
-        BOXED_INTEGRAL_TYPES.add(TypeDescription.Generic.OfNonGenericType.ForLoadedType.of(Short.class));
-        BOXED_INTEGRAL_TYPES.add(TypeDescription.Generic.OfNonGenericType.ForLoadedType.of(Byte.class));
-    }
 
     private final boolean deriveSuperTypes;
 
