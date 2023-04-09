@@ -21,6 +21,7 @@ dependencies {
     compile group: 'org.jetbrains', name: 'annotations', version: '18.0.0'
     compile group: 'org.slf4j', name: 'slf4j-api', version: slf4j_version
     compile group: 'org.slf4j', name: 'slf4j-simple', version: slf4j_version
+    compile group: 'org.hdrhistogram', name: 'HdrHistogram', version: '2.1.12'
 
     compileOnly group: 'org.projectlombok', name: 'lombok', version: lombok_version
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombok_version

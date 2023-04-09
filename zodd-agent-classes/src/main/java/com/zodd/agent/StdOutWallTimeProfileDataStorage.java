@@ -1,18 +1,22 @@
 package com.zodd.agent;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 
 import com.zodd.agent.util.NamedThreadFactory;
+import org.HdrHistogram.Histogram;
 import org.jctools.queues.MpscLinkedQueue;
 
-public class StdOutProfileDataPrinter implements ProfileDataStorage {
+public class StdOutWallTimeProfileDataStorage implements ProfileDataStorage {
 
     private final Queue<MethodCallWallTimeData> queue = new MpscLinkedQueue<>();
+    private final Map<Integer, WallTimeProfiler> profilers = new ConcurrentHashMap<>();
     private final MethodRepository methodRepository;
 
-    public StdOutProfileDataPrinter(Settings settings, MethodRepository methodRepository) {
+    public StdOutWallTimeProfileDataStorage(Settings settings, MethodRepository methodRepository) {
         this.methodRepository = methodRepository;
 
         Executors.newFixedThreadPool(
@@ -43,5 +47,19 @@ public class StdOutProfileDataPrinter implements ProfileDataStorage {
 
     public void store(MethodCallWallTimeData measurement) {
         queue.add(measurement);
+    }
+
+    private class WallTimeProfiler {
+
+        private final int methodId;
+        private Histogram histogram;
+
+        public void record(long nanoTime) {
+
+        }
+
+        private void () {
+
+        }
     }
 }

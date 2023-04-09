@@ -10,7 +10,7 @@ public class AgentContext {
 
     private AgentContext(Settings settings) {
         this.methodRepository = new MethodRepository();
-        this.resultPrinter = new StdOutProfileDataPrinter(settings, methodRepository);
+        this.resultPrinter = new StdOutWallTimeProfileDataStorage(settings, methodRepository);
     }
 
     public static AgentContext getInstance() {
