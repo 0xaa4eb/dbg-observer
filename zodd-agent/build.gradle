@@ -71,6 +71,7 @@ shadowJar {
     relocate 'com.google', 'shadowed.com.google'
     relocate 'javax.annotation', 'shadowed.javax.annotation'
     relocate 'net.bytebuddy', 'shadowed.net.bytebuddy'
+    relocate 'org.HdrHistogram', 'shadowed.org.HdrHistogram'
 
     archiveName = "${rootProject.name}-agent-${rootProject.version}.jar"
 

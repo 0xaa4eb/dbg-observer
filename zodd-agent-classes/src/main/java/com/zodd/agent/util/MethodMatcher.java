@@ -50,6 +50,10 @@ public class MethodMatcher {
         return typeMatcher.matchesSuperTypes();
     }
 
+    public TypeMatcher getTypeMatcher() {
+        return typeMatcher;
+    }
+
     @Override
     public String toString() {
         return typeMatcher + "." + methodName;

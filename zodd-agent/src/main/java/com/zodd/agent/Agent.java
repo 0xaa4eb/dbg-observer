@@ -1,7 +1,6 @@
 package com.zodd.agent;
 
 import java.lang.instrument.Instrumentation;
-import java.util.Optional;
 
 import com.zodd.agent.util.*;
 
@@ -73,18 +72,26 @@ public class Agent {
     }
 
     private static ElementMatcher.Junction<TypeDescription> buildInstrumentationMatcher(Settings settings) {
-        PackageList instrumentatedPackages = settings.getInstrumentedPackages();
-        ElementMatcher.Junction<TypeDescription> instrumentationMatcher = null;
-
-        for (String packageToInstrument : instrumentatedPackages) {
-            if (instrumentationMatcher == null) {
-                instrumentationMatcher = ElementMatchers.nameStartsWith(packageToInstrument);
-            } else {
-                instrumentationMatcher = instrumentationMatcher.or(ElementMatchers.nameStartsWith(packageToInstrument));
+        if (!settings.getProfileMethodList().useSuperTypes()) {
+            ByteBuddyTypeConverter typeConverter = new ByteBuddyTypeConverter(false);
+            ElementMatcher.Junction<TypeDescription> instrumentationMatcher = null;
+            for (MethodMatcher matcher : settings.getProfileMethodList()) {
+                TypeMatcher.SimpleNameTypeMatcher typeMatcher = (TypeMatcher.SimpleNameTypeMatcher) matcher.getTypeMatcher();
+                if (instrumentationMatcher == null) {
+                    instrumentationMatcher = ElementMatchers.failSafe(
+                        target -> typeMatcher.getSimpleName().equals(ClassUtils.getSimpleNameFromName(typeConverter.convert(target.asGenericType()).getName()))
+                    );
+                } else {
+                    instrumentationMatcher = instrumentationMatcher.or(
+                        target -> typeMatcher.getSimpleName().equals(ClassUtils.getSimpleNameFromName(typeConverter.convert(target.asGenericType()).getName()))
+                    );
+                }
             }
+            return instrumentationMatcher;
+        } else {
+            // TODO support with super types match
+            throw new UnsupportedOperationException();
         }
-
-        return Optional.ofNullable(instrumentationMatcher).orElse(ElementMatchers.any());
     }
 
     private static ElementMatcher.Junction<TypeDescription> buildIgnoreMatcher(Settings settings) {

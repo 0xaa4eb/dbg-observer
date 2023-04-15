@@ -109,6 +109,10 @@ public interface TypeMatcher {
             this.matchSuperTypes = matchSuperTypes;
         }
 
+        public String getSimpleName() {
+            return simpleName;
+        }
+
         @Override
         public boolean matchesSuperTypes() {
             return matchSuperTypes;

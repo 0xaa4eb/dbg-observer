@@ -1,13 +1,16 @@
 package com.zodd.agent.util;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.jetbrains.annotations.NotNull;
 
 import com.zodd.agent.Method;
 
 
-public class MethodMatcherList {
+public class MethodMatcherList implements Iterable<MethodMatcher> {
 
     private final List<MethodMatcher> methods;
 
@@ -38,5 +41,11 @@ public class MethodMatcherList {
     @Override
     public String toString() {
         return methods.toString();
+    }
+
+    @NotNull
+    @Override
+    public Iterator<MethodMatcher> iterator() {
+        return methods.iterator();
     }
 }

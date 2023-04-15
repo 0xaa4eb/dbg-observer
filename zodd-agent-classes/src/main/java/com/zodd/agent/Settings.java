@@ -12,7 +12,6 @@ import com.zodd.agent.util.PackageList;
  */
 public class Settings {
 
-    public static final String PACKAGES_PROPERTY = "zodd.packages";
     public static final String EXCLUDE_PACKAGES_PROPERTY = "zodd.exclude-packages";
     public static final String START_PROFILE_METHODS_PROPERTY = "zodd.methods";
     public static final String FILE_PATH_PROPERTY = "zodd.file";
@@ -21,19 +20,16 @@ public class Settings {
     private final String file;
     @NotNull
     private final MethodMatcherList methodMatcherList;
-    private final PackageList instrumentedPackages;
     private final PackageList excludedFromInstrumentationPackages;
     private final boolean agentDisabled;
 
     public Settings(
             String file,
             @NotNull MethodMatcherList methodMatcherList,
-            PackageList instrumentedPackages,
             PackageList excludedFromInstrumentationPackages,
             boolean agentDisabled) {
         this.methodMatcherList = methodMatcherList;
         this.file = file;
-        this.instrumentedPackages = instrumentedPackages;
         this.excludedFromInstrumentationPackages = excludedFromInstrumentationPackages;
         this.agentDisabled = agentDisabled;
     }
@@ -43,11 +39,10 @@ public class Settings {
         String methodsToProfile = System.getProperty(START_PROFILE_METHODS_PROPERTY, "");
         MethodMatcherList profilingStartMethods = MethodMatcherList.parse(methodsToProfile);
         String filePath = System.getProperty(FILE_PATH_PROPERTY);
-        PackageList instrumentationPackages = new PackageList(CommaSeparatedList.parse(System.getProperty(PACKAGES_PROPERTY, "")));
         PackageList excludedPackages = new PackageList(CommaSeparatedList.parse(System.getProperty(EXCLUDE_PACKAGES_PROPERTY, "")));
         boolean agentDisabled = System.getProperty(AGENT_DISABLED_PROPERTY) != null;
 
-        return new Settings(filePath, profilingStartMethods, instrumentationPackages, excludedPackages, agentDisabled);
+        return new Settings(filePath, profilingStartMethods, excludedPackages, agentDisabled);
     }
 
     @NotNull
@@ -57,10 +52,6 @@ public class Settings {
 
     public String getFile() {
         return file;
-    }
-
-    public PackageList getInstrumentedPackages() {
-        return instrumentedPackages;
     }
 
     public PackageList getExcludedFromInstrumentationPackages() {
