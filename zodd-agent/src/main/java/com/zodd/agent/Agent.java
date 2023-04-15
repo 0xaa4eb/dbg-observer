@@ -17,7 +17,6 @@ import net.bytebuddy.matcher.ElementMatchers;
 public class Agent {
 
     public static void start(String args, Instrumentation instrumentation) {
-
         // Touch first and initialize shadowed slf4j
         String logLevel = LoggingSettings.getLoggingLevel();
         Settings settings = Settings.fromSystemProperties();
@@ -28,7 +27,11 @@ public class Agent {
         if (AgentContext.isLoaded()) {
             return;
         }
-        AgentContext.initInstance(settings);
+        try {
+            AgentContext.initInstance(settings);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         AgentContext context = AgentContext.getInstance();
 
         System.out.println("Zodd agent started, logging level = " + logLevel + ", settings: " + settings);
@@ -45,7 +48,7 @@ public class Agent {
                 .transform((builder, typeDescription, classLoader, module, protectionDomain) -> builder.visit(
                         Advice.withCustomMapping()
                                 .bind(methodIdFactory)
-                                .to(WallTimeProfileAdvice.class)
+                                .to(CallTimeProfileAdvice.class)
                                 .on(buildMethodsMatcher(settings))
                 ));
 

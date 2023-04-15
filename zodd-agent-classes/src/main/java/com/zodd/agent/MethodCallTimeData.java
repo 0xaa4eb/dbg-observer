@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class MethodCallWallTimeData {
+public class MethodCallTimeData {
 
     private final int methodId;
     private final long millisEpochTime;

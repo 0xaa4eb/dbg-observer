@@ -13,7 +13,7 @@ import net.bytebuddy.implementation.bytecode.assign.Assigner;
 
 
 /**
- * Allows wiring method id into advice classes {@link WallTimeProfileAdvice} and {@link WallTimeProfileAdvice}
+ * Allows wiring method id into advice classes {@link CallTimeProfileAdvice} and {@link CallTimeProfileAdvice}
  * <p>
  * Uses a singleton instance of {@link MethodRepository} to store methods into it.
  */

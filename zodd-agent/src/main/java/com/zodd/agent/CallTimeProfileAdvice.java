@@ -2,7 +2,7 @@ package com.zodd.agent;
 
 import net.bytebuddy.asm.Advice;
 
-public class WallTimeProfileAdvice {
+public class CallTimeProfileAdvice {
 
     @Advice.OnMethodEnter
     static void enter(
@@ -20,7 +20,7 @@ public class WallTimeProfileAdvice {
         long durationNanos = System.nanoTime() - timestamp;
 
         AgentContext.getInstance().getResultPrinter()
-            .store(MethodCallWallTimeData.builder()
+            .store(MethodCallTimeData.builder()
                 .nanos(durationNanos)
                 .millisEpochTime(epochTimestamp)
                 .methodId(methodId)

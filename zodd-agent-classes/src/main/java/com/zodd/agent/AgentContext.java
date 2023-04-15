@@ -8,16 +8,16 @@ public class AgentContext {
     private final ProfileDataStorage resultPrinter;
     private final MethodRepository methodRepository;
 
-    private AgentContext(Settings settings) {
+    private AgentContext(Settings settings) throws Exception {
         this.methodRepository = new MethodRepository();
-        this.resultPrinter = new StdOutWallTimeProfileDataStorage(settings, methodRepository);
+        this.resultPrinter = new FileProfileDataStorage(settings, methodRepository);
     }
 
     public static AgentContext getInstance() {
         return instance;
     }
 
-    public static void initInstance(Settings settings) {
+    public static void initInstance(Settings settings) throws Exception {
         instance = new AgentContext(settings);
         setLoaded();
     }
